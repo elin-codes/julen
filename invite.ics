@@ -5,11 +5,11 @@ CALSCALE:GREGORIAN
 METHOD:PUBLISH
 BEGIN:VEVENT
 UID:elin-ringer-julen-inn-2026@elin-codes.github.io
-DTSTAMP:20261111T023750Z
+DTSTAMP:20261111T025516Z
 DTSTART:20261201T180000Z
 DTEND:20261201T220000Z
 SUMMARY:🔔 Elin ringer julen inn
-LOCATION:Hjemme hos Elin\, Oslo
+LOCATION:Toppen av St. Hanshaugen\, Oslo
 DESCRIPTION:Elin ringer julen inn – det blir gløgg og god julestemning!\
  n\nInvitasjon: https://elin-codes.github.io/julen/
 URL:https://elin-codes.github.io/julen/
