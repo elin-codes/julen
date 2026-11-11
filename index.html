@@ -204,6 +204,18 @@ main{
 .thanks .big{font-family:"Great Vibes",cursive;font-size:38px;line-height:1.1;color:var(--gold)}
 .thanks p{font-size:15px;line-height:1.5}
 .fine{margin-top:14px;font-size:11px;letter-spacing:.04em;color:rgba(246,241,228,.5)}
+.rsvp-form{margin-top:16px;animation:fadeup .5s both}
+.rsvp-form .big{font-family:"Great Vibes",cursive;font-size:38px;line-height:1.1;color:var(--gold)}
+.rsvp-form label{display:block;margin-top:4px;font-size:15px;color:var(--muted)}
+.rsvp-form input{
+  display:block;width:100%;margin:14px 0 18px;padding:12px 4px;
+  background:transparent;border:0;border-bottom:1px solid rgba(212,178,106,.7);border-radius:0;
+  color:var(--cream);font:400 20px Jost,sans-serif;text-align:center;outline:none;
+}
+.rsvp-form input::placeholder{color:rgba(246,241,228,.4)}
+.rsvp-form input:focus{border-bottom-color:var(--gold)}
+.rsvp-form button.yes{cursor:pointer}
+.form-note{margin-top:14px;font-size:12px;color:rgba(246,241,228,.55)}
 
 /* ---------- Countdown ---------- */
 .countdown{margin-top:44px;text-align:center;animation:fadeup 1s 1.6s both}
@@ -313,9 +325,17 @@ footer{margin-top:40px;text-align:center;font-size:13px;line-height:1.6;color:va
       <a class="yes" id="yes" href="invite.ics">Ja, jeg kommer</a>
       <button class="no" id="no" type="button">Nei</button>
     </div>
+    <form class="rsvp-form" id="rsvpForm" hidden>
+      <p class="big">Nesten der!</p>
+      <label for="navn">Hva heter du?</label>
+      <input id="navn" name="navn" autocomplete="name" placeholder="Navnet ditt" maxlength="60" enterkeyhint="send">
+      <button type="submit" class="yes">Send svar</button>
+      <p class="form-note">Elin får svaret ditt, og invitasjonen legges i kalenderen din.</p>
+    </form>
     <p class="alt" id="alt">Bruker du Google Kalender? <a id="gcal" href="#" target="_blank" rel="noopener">Legg den til der</a></p>
     <div class="thanks" id="thanks" hidden>
       <p class="big">Så hyggelig!</p>
+      <p id="thanksSent" hidden></p>
       <p>Trykk «Legg til» eller «Lagre», så ligger den i kalenderen din. Gløggen står klar.</p>
     </div>
     <p class="fine">Ved å åpne denne invitasjonen har du i praksis allerede takket ja.</p>
@@ -352,7 +372,10 @@ const EVENT = {
   extraText: "Det blir gløgg<br>og god julestemning",
   location: "Toppen av St. Hanshaugen, Oslo",   // used in the calendar entry
   details:  "Elin ringer julen inn – det blir gløgg og god julestemning!",
-  url:      "https://elin-codes.github.io/julen/"
+  url:      "https://elin-codes.github.io/julen/",
+  // Names go to the Google Form "Elin ringer julen inn – påmeldte" (→ linked Google Sheet).
+  rsvpUrl:   "https://docs.google.com/forms/d/e/1FAIpQLSeL7EcoqbSEGY5WttWsJJazz9avCta3QQjCbKE0ByS47t4eRw/formResponse",
+  rsvpField: "entry.1946399983"   // the form's "Navn" question
 };
 
 (() => {
@@ -647,10 +670,14 @@ const EVENT = {
   }
   no.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") dodge(); });
   no.addEventListener("touchstart", e => { if (!gaveUp) dodge(e); }, { passive: false });
+  const goToCalendar = () => {
+    if (yes.target === "_blank") window.open(yes.href, "_blank", "noopener"); else location.href = yes.href;
+  };
   no.addEventListener("click", e => {
     if (!gaveUp) { dodge(e); return; }
+    if (EVENT.rsvpUrl && !sent) { askName(); return; }
     celebrate(no);
-    if (yes.target === "_blank") window.open(yes.href, "_blank", "noopener"); else location.href = yes.href;
+    goToCalendar();
   });
 
   /* ---------- YES ---------- */
@@ -663,7 +690,35 @@ const EVENT = {
     no.style.display = "none";
     zone.style.height = "auto";
   }
-  yes.addEventListener("click", () => celebrate(yes));
+
+  /* ---------- collect the name → Google Sheet ---------- */
+  const form = $("#rsvpForm"), navnInput = $("#navn");
+  let sent = false;
+  function askName() {
+    zone.hidden = true;
+    $("#alt").hidden = true;
+    form.hidden = false;
+    if (name && !navnInput.value) navnInput.value = name;
+    navnInput.focus();
+    form.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+  }
+  yes.addEventListener("click", e => {
+    if (EVENT.rsvpUrl && !sent) { e.preventDefault(); askName(); return; }
+    celebrate(yes);
+  });
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const navn = navnInput.value.trim();
+    if (!navn) { navnInput.focus(); navnInput.placeholder = "Skriv navnet ditt her 👆"; return; }
+    const body = new URLSearchParams({ [EVENT.rsvpField]: navn });
+    try { fetch(EVENT.rsvpUrl, { method: "POST", mode: "no-cors", body, keepalive: true }); } catch (_) {}
+    sent = true;
+    celebrate(form.querySelector("button"));
+    form.hidden = true;
+    $("#alt").hidden = false;
+    const t = $("#thanksSent"); t.textContent = "Elin har fått svaret ditt, " + navn + "."; t.hidden = false;
+    goToCalendar();
+  });
 })();
 </script>
 </body>
