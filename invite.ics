@@ -1,0 +1,27 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Elin//Elin ringer julen inn//NO
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:elin-ringer-julen-inn-2026@elin-codes.github.io
+DTSTAMP:20261111T023750Z
+DTSTART:20261201T180000Z
+DTEND:20261201T220000Z
+SUMMARY:🔔 Elin ringer julen inn
+LOCATION:Hjemme hos Elin\, Oslo
+DESCRIPTION:Elin ringer julen inn – det blir gløgg og god julestemning!\
+ n\nInvitasjon: https://elin-codes.github.io/julen/
+URL:https://elin-codes.github.io/julen/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1D
+DESCRIPTION:I morgen ringer Elin julen inn! Gløggen varmes opp.
+END:VALARM
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT2H
+DESCRIPTION:Om 2 timer ringer Elin julen inn 🔔
+END:VALARM
+END:VEVENT
+END:VCALENDAR
